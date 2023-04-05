@@ -2,7 +2,7 @@
 
 # Run all the scripts in the current directory
 cd ~/Chinese-Text-Classification-Pytorch;
-rm ./pygp_data/saved_dict/*;
+rm ./pygp_data/saved_dict/*.ckpt;
 python run.py --model FastText_gp_raw --embedding embedding_cc.zh.300.npz  --word Ture --mode 1;
 python run.py --model FastText_gp_raw --embedding embedding_cc.zh.300.npz  --word Ture --mode 2;
 python run.py --model FastText_gp_raw --embedding embedding_cc.zh.300.npz  --word Ture --mode 3;
