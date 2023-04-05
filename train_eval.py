@@ -7,7 +7,7 @@ from sklearn import metrics
 import time
 from utils import get_time_dif
 from tensorboardX import SummaryWriter
-
+import os
 
 # 权重初始化，默认xavier
 def init_network(model, method='xavier', exclude='embedding', seed=123):
@@ -90,10 +90,12 @@ def test(config, model, test_iter):
     print(msg.format(test_loss, test_acc))
     print("Precision, Recall and F1-Score...")
     print(test_report)
-    with open("report/"+config.model_name+'.txt', 'w', encoding='utf-8') as f:
+    with open("report/"+config.model_name+config.out_name+'.txt', 'w', encoding='utf-8') as f:
         print(test_report,file=f)
     print("Confusion Matrix...")
     print(test_confusion)
+    with open("report_matrix/"+config.model_name+config.out_name+'_matrix'+'.txt', 'w', encoding='utf-8') as f:
+        print(test_confusion,file=f)
     time_dif = get_time_dif(start_time)
     print("Time usage:", time_dif)
 

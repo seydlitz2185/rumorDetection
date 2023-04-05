@@ -1,0 +1,9 @@
+              precision    recall  f1-score   support
+
+         非谣言     0.9602    0.9235    0.9415       392
+          谣言     0.7521    0.8585    0.8018       106
+
+    accuracy                         0.9096       498
+   macro avg     0.8561    0.8910    0.8716       498
+weighted avg     0.9159    0.9096    0.9117       498
+

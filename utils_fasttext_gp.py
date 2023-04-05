@@ -29,7 +29,7 @@ def build_vocab(file_path, tokenizer, max_size, min_freq):
     return vocab_dic
 
 
-def build_dataset(config, ues_word):
+def build_dataset(config, mode,ues_word):
     if ues_word:
         tokenizer = lambda x: x.split(' ')  # 以空格隔开，word-level
     else:
@@ -50,10 +50,9 @@ def build_dataset(config, ues_word):
         t2 = sequence[t - 2] if t - 2 >= 0 else 0
         return (t2 * 14918087 * 18408749 + t1 * 14918087) % buckets
 
-    def load_dataset(path, pad_size=32):
+    def load_dataset(path, mode,pad_size=32):
+        mode_num = int(mode[0])
         data = pd.read_csv('data.csv',index_col=0)
-        embed = np.load('word_dict.npz',allow_pickle=True)
-        word_dict =embed['word_dict'].item()
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
             for line in tqdm(f):
@@ -65,10 +64,20 @@ def build_dataset(config, ues_word):
                 cos_sim  = np.array((data.loc[index,'cos_sim']) if data.loc[index,'cos_sim'] != 'nan' else [0])
                 length = np.array([data.loc[index,'length']] if data.loc[index,'length'] != 'nan' else [0])
                 topic = np.array(eval(data.loc[index,'pca_topic_vectors'])if data.loc[index,'pca_topic_vectors'] != 'nan' else [0]*100)*100000
-                #topic = topic*sentiment
-                topic = topic*length
-                #topic = topic*length*cos_sim
-                #topic = topic*length*cos_sim*sentiment
+                if mode_num == 1:
+                    pass
+                elif  mode_num == 2:
+                    topic = topic*sentiment
+                elif  mode_num == 3:
+                    topic = topic*length
+                elif mode_num == 4:
+                    topic = topic*cos_sim
+                elif mode_num == 5:
+                    topic = topic*length*cos_sim
+                elif mode_num == 6:
+                    topic = topic*length*cos_sim*sentiment
+                else:
+                    raise ValueError('mode_num is wrong')
                 words_line = []
                 token = tokenizer(content)
                 seq_len = len(token)
@@ -93,9 +102,9 @@ def build_dataset(config, ues_word):
                 # -----------------
                 contents.append((words_line, int(label), seq_len, bigram, trigram,topic))
         return contents  # [([...], 0), ([...], 1), ...]
-    train = load_dataset(config.train_path, config.pad_size)
-    dev = load_dataset(config.dev_path, config.pad_size)
-    test = load_dataset(config.test_path, config.pad_size)
+    train = load_dataset(config.train_path, mode,config.pad_size)
+    dev = load_dataset(config.dev_path, mode,config.pad_size)
+    test = load_dataset(config.test_path, mode,config.pad_size)
     return vocab, train, dev, test
 
 
@@ -119,16 +128,7 @@ class DatasetIterater(object):
         seq_len = torch.LongTensor([_[2] for _ in datas]).to(self.device)
         bigram = torch.LongTensor([_[3] for _ in datas]).to(self.device)
         trigram = torch.LongTensor([_[4] for _ in datas]).to(self.device)
-        if(len(datas[0]) >= 8):
-            topic = torch.LongTensor(np.array([_[5] for _ in datas])).to(self.device)
-            cos_sim  = torch.LongTensor(np.array([_[6] for _ in datas])).to(self.device)
-            sentiment = torch.LongTensor(np.array([_[7] for _ in datas])).to(self.device)
-            return (x, seq_len, bigram, trigram,topic,cos_sim,sentiment), y
-        elif(len(datas[0]) >= 7):
-            topic = torch.LongTensor(np.array([_[5] for _ in datas])).to(self.device)
-            cos_sim  = torch.LongTensor(np.array([_[6] for _ in datas])).to(self.device)
-            return (x, seq_len, bigram, trigram,topic,cos_sim), y
-        if len(datas[0]) >=6:
+        if len(datas[0]) ==6:
             topic = torch.LongTensor(np.array([_[5] for _ in datas])).to(self.device)
             return (x, seq_len, bigram, trigram,topic), y
         # pad前的长度(超过pad_size的设为pad_size)
