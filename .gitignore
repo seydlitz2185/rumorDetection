@@ -1,1 +1,3 @@
 *.ckpt
+word_dict.npz
+

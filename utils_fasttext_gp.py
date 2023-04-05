@@ -66,7 +66,7 @@ def build_dataset(config, ues_word):
                 length = np.array([data.loc[index,'length']] if data.loc[index,'length'] != 'nan' else [0])
                 topic = np.array(eval(data.loc[index,'pca_topic_vectors'])if data.loc[index,'pca_topic_vectors'] != 'nan' else [0]*100)*100000
                 #topic = topic*sentiment
-                #topic = topic*length
+                topic = topic*length
                 #topic = topic*length*cos_sim
                 #topic = topic*length*cos_sim*sentiment
                 words_line = []
