@@ -18,3 +18,4 @@ python run.py --model FastText_gp --embedding embedding_cc.zh.300.npz  --word Tu
 python run.py --model FastText --embedding embedding_cc.zh.300.npz  --word Ture;
 python run.py --model FastText_raw --embedding embedding_cc.zh.300.npz  --word True;
 python run.py --model Transformer --embedding embedding_cc.zh.300.npz  --word True;
+python result_to_csv.py;

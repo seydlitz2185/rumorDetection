@@ -26,17 +26,16 @@ mode_dict = {'0':'','1':'topic','2':'topic*sentiment','3':'topic*length','4':'to
 if __name__ == '__main__':
     dataset = 'THUCNews'  # 数据集
     dataset = 'pygp_data' 
-    # 搜狗新闻:embedding_SougouNews.npz, 腾讯:embedding_Tencent.npz, 随机初始化:random
-    embedding = 'embedding_SougouNews.npz'
+    embedding = 'embedding_cc.zh.300.npz'
     if args.embedding == 'random':
         embedding = 'random'
     model_name = args.model  # 'TextRCNN'  # TextCNN, TextRNN, FastText, TextRCNN, TextRNN_Att, DPCNN, Transformer
     if model_name == 'FastText' or model_name == 'FastText_raw' :
         from utils_fasttext import build_dataset, build_iterator, get_time_dif
-        embedding = 'random'
+       # embedding = 'random'
     elif model_name == 'FastText_gp' or model_name == 'FastText_gp_raw':
         from utils_fasttext_gp import build_dataset, build_iterator, get_time_dif
-        embedding = 'random'
+        #embedding = 'random'
     else:
         from utils import build_dataset, build_iterator, get_time_dif
 

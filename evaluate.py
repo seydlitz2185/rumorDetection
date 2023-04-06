@@ -139,10 +139,10 @@ if __name__ == "__main__":
     model_name = args.model  # 'TextRCNN'  # TextCNN, TextRNN, FastText, TextRCNN, TextRNN_Att, DPCNN, Transformer
     if model_name == 'FastText' or model_name == 'FastText_raw':
         from utils_fasttext import build_dataset, build_iterator, get_time_dif
-        embedding = 'random'
+        #embedding = 'random'
     if model_name == 'FastText_gp' or model_name == 'FastText_gp_raw':
         from utils_fasttext_gp import build_dataset, build_iterator, get_time_dif
-        embedding = 'random'
+        #embedding = 'random'
         dataset = './pygp_data'
         if args.mode != '':
             out_name = mode_dict[args.mode]

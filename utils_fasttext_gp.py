@@ -22,7 +22,6 @@ def build_vocab(file_path, tokenizer, max_size, min_freq):
             content = lin.split('\t')[1]
             for word in tokenizer(content):
                 vocab_dic[word] = vocab_dic.get(word, 0) + 1
-                print(word)
         vocab_list = sorted([_ for _ in vocab_dic.items() if _[1] >= min_freq], key=lambda x: x[1], reverse=True)[:max_size]
         vocab_dic = {word_count[0]: idx for idx, word_count in enumerate(vocab_list)}
         vocab_dic.update({UNK: len(vocab_dic), PAD: len(vocab_dic) + 1})
@@ -100,6 +99,8 @@ def build_dataset(config, mode,ues_word):
                     bigram.append(biGramHash(words_line, i, buckets))
                     trigram.append(triGramHash(words_line, i, buckets))
                 # -----------------
+
+                #print(min(words_line),max(words_line),min(bigram),max(bigram),min(trigram),max(trigram),min(topic),max(topic))
                 contents.append((words_line, int(label), seq_len, bigram, trigram,topic))
         return contents  # [([...], 0), ([...], 1), ...]
     train = load_dataset(config.train_path, mode,config.pad_size)
@@ -130,6 +131,7 @@ class DatasetIterater(object):
         trigram = torch.LongTensor([_[4] for _ in datas]).to(self.device)
         if len(datas[0]) ==6:
             topic = torch.LongTensor(np.array([_[5] for _ in datas])).to(self.device)
+            #print(min(x),max(x),min(bigram),max(bigram),min(trigram),max(trigram),min(topic),max(topic))
             return (x, seq_len, bigram, trigram,topic), y
         # pad前的长度(超过pad_size的设为pad_size)
         else:
