@@ -28,7 +28,7 @@ def build_vocab(file_path, tokenizer, max_size, min_freq):
     return vocab_dic
 
 
-def build_dataset(config, mode,ues_word):
+def build_dataset(config,ues_word):
     if ues_word:
         tokenizer = lambda x: x.split(' ')  # 以空格隔开，word-level
     else:
@@ -49,9 +49,7 @@ def build_dataset(config, mode,ues_word):
         t2 = sequence[t - 2] if t - 2 >= 0 else 0
         return (t2 * 14918087 * 18408749 + t1 * 14918087) % buckets
 
-    def load_dataset(path, mode,pad_size=32):
-        mode_num = int(mode[0])
-        data = pd.read_csv('data.csv',index_col=0)
+    def load_dataset(path,pad_size=32):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
             for line in tqdm(f):
@@ -59,24 +57,6 @@ def build_dataset(config, mode,ues_word):
                 if not lin:
                     continue
                 index,content, label = lin.split('\t')
-                sentiment = np.array([data.loc[index,'sentiments']] if data.loc[index,'sentiments'] != 'nan' else [0])
-                cos_sim  = np.array((data.loc[index,'cos_sim']) if data.loc[index,'cos_sim'] != 'nan' else [0])
-                length = np.array([data.loc[index,'length']] if data.loc[index,'length'] != 'nan' else [0])
-                topic = np.array(eval(data.loc[index,'pca_topic_vectors'])if data.loc[index,'pca_topic_vectors'] != 'nan' else [0]*100)*100000
-                if mode_num == 1:
-                    pass
-                elif  mode_num == 2:
-                    topic = topic*sentiment
-                elif  mode_num == 3:
-                    topic = topic*length
-                elif mode_num == 4:
-                    topic = topic*cos_sim
-                elif mode_num == 5:
-                    topic = topic*length*cos_sim
-                elif mode_num == 6:
-                    topic = topic*length*cos_sim*sentiment
-                else:
-                    raise ValueError('mode_num is wrong')
                 words_line = []
                 token = tokenizer(content)
                 seq_len = len(token)
@@ -89,7 +69,7 @@ def build_dataset(config, mode,ues_word):
                 # word to id
                 for word in token:
                     words_line.append(vocab.get(word, vocab.get(UNK)))
-
+                topic = words_line.copy()
                 # fasttext ngram
                 buckets = config.n_gram_vocab
                 bigram = []
@@ -99,13 +79,11 @@ def build_dataset(config, mode,ues_word):
                     bigram.append(biGramHash(words_line, i, buckets))
                     trigram.append(triGramHash(words_line, i, buckets))
                 # -----------------
-
-                #print(min(words_line),max(words_line),min(bigram),max(bigram),min(trigram),max(trigram),min(topic),max(topic))
                 contents.append((words_line, int(label), seq_len, bigram, trigram,topic))
         return contents  # [([...], 0), ([...], 1), ...]
-    train = load_dataset(config.train_path, mode,config.pad_size)
-    dev = load_dataset(config.dev_path, mode,config.pad_size)
-    test = load_dataset(config.test_path, mode,config.pad_size)
+    train = load_dataset(config.train_path,config.pad_size)
+    dev = load_dataset(config.dev_path,config.pad_size)
+    test = load_dataset(config.test_path,config.pad_size)
     return vocab, train, dev, test
 
 
@@ -119,7 +97,6 @@ class DatasetIterater(object):
             self.residue = True
         self.index = 0
         self.device = device
-
     def _to_tensor(self, datas):
         # xx = [xxx[2] for xxx in datas]
         # indexx = np.argsort(xx)[::-1]
@@ -174,24 +151,3 @@ def get_time_dif(start_time):
     time_dif = end_time - start_time
     return timedelta(seconds=int(round(time_dif)))
 
-'''
-if __name__ == "__main__":
-    #提取预训练词向量
-    vocab_dir = "./pygp_data/data/vocab.pkl"
-    pretrain_dir = "./pygp_data/data/sgns.sogou.char"
-    emb_dim = 300
-    filename_trimmed_dir = "./pygp_data/data/vocab.embedding.sougou"
-    word_to_id = pkl.load(open(vocab_dir, 'rb'))
-    embeddings = np.random.rand(len(word_to_id), emb_dim)
-    f = open(pretrain_dir, "r", encoding='UTF-8')
-    for i, line in enumerate(f.readlines()):
-        # if i == 0:  # 若第一行是标题，则跳过
-        #     continue
-        lin = line.strip().split(" ")
-        if lin[0] in word_to_id:
-            idx = word_to_id[lin[0]]
-            emb = [float(x) for x in lin[1:301]]
-            embeddings[idx] = np.asarray(emb, dtype='float32')
-    f.close()
-    np.savez_compressed(filename_trimmed_dir, embeddings=embeddings)
-'''

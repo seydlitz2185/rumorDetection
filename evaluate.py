@@ -12,9 +12,7 @@ parser = argparse.ArgumentParser(description='Chinese Text Classification')
 parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText,FastText_gp TextRCNN, TextRNN_Att, DPCNN, Transformer')
 parser.add_argument('--embedding', default='pre_trained', type=str, help='random or pre_trained')
 parser.add_argument('--word', default=False, type=bool, help='True for word, False for char')
-parser.add_argument('--mode',default='1',type=str,help='choose a mode: 1,2,3,4,5,6')
 args = parser.parse_args()
-mode_dict = {'1':'topic','2':'topic*sentiment','3':'topic*length','4':'topic*cos','5':'topic*linguistic','6':'topic*linguistic*sentiment'}
 
 def load_model(dataset, model_name):
     embedding = 'random'
@@ -22,11 +20,6 @@ def load_model(dataset, model_name):
     config = x.Config(dataset, embedding)
     tokenizer = lambda x: [y for y in x]
     vocab = pkl.load(open(config.vocab_path, 'rb'))
-    if model_name == 'FastText_gp' or model_name == 'FastText_gp_raw':
-         if args.mode != '':
-            out_name = mode_dict[args.mode]
-            out_name = out_name.replace('*','_')
-            config.out_name = '_'+out_name
     config.n_vocab = len(vocab)
     config.batch_size = 1
     model = x.Model(config).to(config.device)
@@ -39,7 +32,6 @@ def load_dataset(indexs,sens, pad_size=32):
     data = pd.read_csv('data.csv',index_col=0)
     contents = []
     UNK, PAD = '<UNK>', '<PAD>'
-    mode_num = int(args.mode)
     def biGramHash(sequence, t, buckets):
         t1 = sequence[t - 1] if t - 1 >= 0 else 0
         return (t1 * 14918087) % buckets
@@ -64,7 +56,7 @@ def load_dataset(indexs,sens, pad_size=32):
         # word to id
         for word in token:
             words_line.append(vocab.get(word, vocab.get(UNK)))
-
+        topic = words_line.copy()
         # fasttext ngram
         if model_name == 'FastText' or model_name == 'FastText_raw' :
             buckets = config.n_gram_vocab
@@ -81,24 +73,6 @@ def load_dataset(indexs,sens, pad_size=32):
             buckets = config.n_gram_vocab
             bigram = []
             trigram = []
-            sentiment = np.array([data.loc[index,'sentiments']] if data.loc[index,'sentiments'] != 'nan' else [0])
-            cos_sim  = np.array((data.loc[index,'cos_sim']) if data.loc[index,'cos_sim'] != 'nan' else [0])
-            length = np.array([data.loc[index,'length']] if data.loc[index,'length'] != 'nan' else [0])
-            topic = np.array(eval(data.loc[index,'pca_topic_vectors'])if data.loc[index,'pca_topic_vectors'] != 'nan' else [0]*100)*100000
-            if mode_num == 1:
-                pass
-            elif  mode_num == 2:
-                topic = topic*sentiment
-            elif  mode_num == 3:
-                topic = topic*length
-            elif mode_num == 4:
-                topic = topic*cos_sim
-            elif mode_num == 5:
-                topic = topic*length*cos_sim
-            elif mode_num == 6:
-                topic = topic*length*cos_sim*sentiment
-            else:
-                raise ValueError('mode_num is wrong')
             # ------ngram------
             for i in range(pad_size):
                 bigram.append(biGramHash(words_line, i, buckets))
@@ -144,10 +118,6 @@ if __name__ == "__main__":
         from utils_fasttext_gp import build_dataset, build_iterator, get_time_dif
         #embedding = 'random'
         dataset = './pygp_data'
-        if args.mode != '':
-            out_name = mode_dict[args.mode]
-            out_name = out_name.replace('*','_')
-            config.out_name = '_'+out_name
     else:
         from utils import build_dataset, build_iterator, get_time_dif
     indexs,sens, labels = [], [],[]

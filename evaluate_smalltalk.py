@@ -11,9 +11,7 @@ parser = argparse.ArgumentParser(description='Chinese Text Classification')
 parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText, FastText_gp,TextRCNN, TextRNN_Att, DPCNN, Transformer')
 parser.add_argument('--embedding', default='pre_trained', type=str, help='random or pre_trained')
 parser.add_argument('--word', default=False, type=bool, help='True for word, False for char')
-parser.add_argument('--mode',default='1',type=str,help='choose a mode: 1,2,3,4,5,6')
 args = parser.parse_args()
-mode_dict = {'1':'topic','2':'topic*sentiment','3':'topic*length','4':'topic*cos','5':'topic*linguistic','6':'topic*linguistic*sentiment'}
 
 def load_model(dataset, model_name):
     embedding = 'random'

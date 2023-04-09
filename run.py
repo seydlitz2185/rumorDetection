@@ -15,16 +15,12 @@ search_space = {
 }
 
 parser = argparse.ArgumentParser(description='Chinese Text Classification')
-parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText, FastText_gp,TextRCNN, TextRNN_Att, DPCNN, Transformer')
+parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText, FastText_raw,FastText_gp,FastText_gp_raw,FastText_gp_raw_topic,TextRCNN, TextRNN_Att, DPCNN, Transformer')
 parser.add_argument('--embedding', default='pre_trained', type=str, help='random or pre_trained')
 parser.add_argument('--word', default=False, type=bool, help='True for word, False for char')
-parser.add_argument('--mode',default='0',type=str,help='choose a mode: 0,1,2,3,4,5,6')
 args = parser.parse_args()
 
-mode_dict = {'0':'','1':'topic','2':'topic*sentiment','3':'topic*length','4':'topic*cos','5':'topic*linguistic','6':'topic*linguistic*sentiment'}
-
 if __name__ == '__main__':
-    dataset = 'THUCNews'  # 数据集
     dataset = 'pygp_data' 
     embedding = 'embedding_cc.zh.300.npz'
     if args.embedding == 'random':
@@ -32,20 +28,13 @@ if __name__ == '__main__':
     model_name = args.model  # 'TextRCNN'  # TextCNN, TextRNN, FastText, TextRCNN, TextRNN_Att, DPCNN, Transformer
     if model_name == 'FastText' or model_name == 'FastText_raw' :
         from utils_fasttext import build_dataset, build_iterator, get_time_dif
-       # embedding = 'random'
-    elif model_name == 'FastText_gp' or model_name == 'FastText_gp_raw':
+    elif model_name.startswith('FastText_gp'):
         from utils_fasttext_gp import build_dataset, build_iterator, get_time_dif
-        #embedding = 'random'
     else:
         from utils import build_dataset, build_iterator, get_time_dif
 
     x = import_module('models.' + model_name)
     config = x.Config(dataset, embedding)
-    if int(args.mode)>=0 and int(args.mode)<7 :
-        out_name = mode_dict[args.mode]
-        out_name = out_name.replace('*','_')
-        config.out_name = '_'+out_name
-    config.save_path =  dataset + '/saved_dict/' + config.model_name+config.out_name + '.ckpt' 
     np.random.seed(1)
     torch.manual_seed(1)
     torch.cuda.manual_seed_all(1)
@@ -53,8 +42,8 @@ if __name__ == '__main__':
 
     start_time = time.time()
     print("Loading data...")
-    if model_name == 'FastText_gp' or model_name == 'FastText_gp_raw':
-        vocab, train_data, dev_data, test_data = build_dataset(config,args.mode,args.word)
+    if model_name.startswith('FastText_gp'):
+        vocab, train_data, dev_data, test_data = build_dataset(config,args.word)
     else:
         vocab, train_data, dev_data, test_data = build_dataset(config, args.word)
     train_iter = build_iterator(train_data, config)

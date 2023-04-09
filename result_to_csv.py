@@ -9,7 +9,7 @@ reports = [file   for file in os.listdir('report') if re.match(r'.*\.txt',file)]
 report_text = []
 matricx_text = []
 
-cloumns = ['model','mode','report','matrix',
+cloumns = ['model','report','matrix',
            'precision_0','recall_0','f1_0','support_0',
            'precision_1','recall_1','f1_1','support_1',
            'accuracy','macro avg_precision','macro avg_recall','macro avg_f1','weighted avg_precision','weighted avg_recall','weighted avg_f1',]
@@ -26,7 +26,6 @@ for i in range(len(reports)):
         text = f.read()
         scores = re.findall(r'[0-9]+.[0-9]+',text)
         df.loc[i,'model'] = report.split('_')[0]
-        df.loc[i,'mode'] = str('_'.join(report.split('_')[1:]))
         df.loc[i,'report'] = text
         df.loc[i,'matrix'] = nums
         df.loc[i,'precision_0'] = scores[0]
