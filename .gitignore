@@ -1,4 +1,5 @@
 *.ckpt
 word_dict.npz
+sentiment_dict.npz
 *weights_100.csv
 *weights_300.csv
