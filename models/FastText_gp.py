@@ -9,6 +9,7 @@ class Config(object):
 
     """配置参数"""
     def __init__(self, dataset, embedding):
+        embedding = 'embedding_cc.zh.300.npz'
         self.model_name = 'FastText_gp'
         self.train_path = dataset + '/data/train.txt'                                # 训练集
         self.dev_path = dataset + '/data/dev.txt'                                    # 验证集
@@ -24,7 +25,7 @@ class Config(object):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu' if torch.has_mps else 'cpu')   # 设备
         self.embedding_pretrained_topics = torch.tensor(
             np.load(dataset + '/data/embedding_pca.zh.100.npz' )["embeddings"].astype('float32'))    
-        self.topics = 100        
+        self.topics = self.embedding_pretrained_topics.size(0)    
         self.dropout = 0.5                                              # 随机失活
         self.require_improvement = 1000                                 # 若超过1000batch效果还没提升，则提前结束训练
         self.num_classes = len(self.class_list)                         # 类别数
