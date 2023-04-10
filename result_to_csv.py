@@ -25,7 +25,7 @@ for i in range(len(reports)):
         report = reports[i].replace('.txt','')
         text = f.read()
         scores = re.findall(r'[0-9]+.[0-9]+',text)
-        df.loc[i,'model'] = report.split('_')[0]
+        df.loc[i,'model'] = report
         df.loc[i,'report'] = text
         df.loc[i,'matrix'] = nums
         df.loc[i,'precision_0'] = scores[0]

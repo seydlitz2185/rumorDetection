@@ -5,6 +5,7 @@ import numpy as np
 from train_eval import train, init_network
 from importlib import import_module
 import argparse
+'''
 from ray import tune
 search_space = {
     'learning_rate': tune.loguniform(1e-5, 1e-2),
@@ -13,7 +14,7 @@ search_space = {
     'hidden_size': tune.randint(32, 257),
     'num_layers': tune.randint(1,3)
 }
-
+'''
 parser = argparse.ArgumentParser(description='Chinese Text Classification')
 parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText, FastText_raw,FastText_gp,FastText_gp_raw,FastText_gp_raw_topic,TextRCNN, TextRNN_Att, DPCNN, Transformer')
 parser.add_argument('--embedding', default='pre_trained', type=str, help='random or pre_trained')
