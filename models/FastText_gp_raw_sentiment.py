@@ -10,7 +10,7 @@ class Config(object):
     """配置参数"""
     def __init__(self, dataset, embedding):
         embedding = 'embedding_cc.zh.300_sentiment.npz'
-        self.model_name = 'FastText_raw_sentiment'
+        self.model_name = 'FastText_gp_raw_sentiment'
         self.train_path = dataset + '/data/train.txt'                                # 训练集
         self.dev_path = dataset + '/data/dev.txt'                                    # 验证集
         self.test_path = dataset + '/data/test.txt'                                  # 测试集

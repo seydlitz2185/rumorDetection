@@ -2,7 +2,7 @@
 
 # Run all the scripts in the current directory
 rm ./pygp_data/saved_dict/*.ckpt;
-python run.py --model FastText  --word Ture ;
+python run.py --model FastText_gp  --word Ture ;
 python run.py --model FastText_gp_raw  --word True;
 python run.py --model FastText_gp_sentiment  --word Ture ;
 python run.py --model FastText_gp_pca_100  --word Ture ;
