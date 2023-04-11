@@ -96,6 +96,7 @@ def test(config, model, test_iter):
     print(test_confusion)
     with open("report_matrix/"+config.model_name+'_matrix'+'.txt', 'w', encoding='utf-8') as f:
         print(test_confusion,file=f)
+    np.savez("report_matrix/"+config.model_name+'_matrix'+'.npz', matrix= test_confusion)
     time_dif = get_time_dif(start_time)
     print("Time usage:", time_dif)
 
