@@ -19,7 +19,7 @@ class Config(object):
         self.save_path = dataset + '/saved_dict/' + self.model_name + '.ckpt'        # 模型训练结果
         self.log_path = dataset + '/log/' + self.model_name
         self.embedding_pretrained = torch.tensor(
-            np.load(dataset + '/data/' + embedding)["embeddings"].astype('float32'))\
+            np.load(dataset + '/data/' + embedding)["embeddings"].astype('float32'))[:,:100]\
             if embedding != 'random' else None                                      # 预训练词向量
         self.embedding_pretrained_topics = torch.tensor(
             np.load(dataset + '/data/embedding_svd.zh.100.npz' )["embeddings"].astype('float32'))                              # 预训练词向量
@@ -49,20 +49,25 @@ class Model(nn.Module):
             self.embedding = nn.Embedding.from_pretrained(config.embedding_pretrained, freeze=False)
         else:
             self.embedding = nn.Embedding(config.n_vocab, config.embed, padding_idx=config.n_vocab - 1)
+        self.embedding_ngram2 = nn.Embedding(config.n_gram_vocab, config.embed)
+        self.embedding_ngram3 = nn.Embedding(config.n_gram_vocab, config.embed)
         self.embedding_topics = nn.Embedding.from_pretrained(config.embedding_pretrained_topics, freeze=False)
         self.dropout = nn.Dropout(config.dropout)
         #全联接层1
-        self.fc1 = nn.Linear(config.embed+config.topics, config.hidden_size)
+        self.fc1 = nn.Linear(config.embed*3+config.topics, config.hidden_size)
         # 全连接层2，输出层
         self.fc2 = nn.Linear(config.hidden_size, config.num_classes)
 
     def forward(self, x):
         out_word = self.embedding(x[0])
+        out_bigram = self.embedding_ngram2(x[2])
+        out_trigram = self.embedding_ngram3(x[3])
+
         if(len(x) == 5):
             out_topics = self.embedding_topics(x[4])
-            out = torch.cat((out_word, out_topics), -1)
+            out = torch.cat((out_word, out_bigram, out_trigram,out_topics), -1)
         else:
-            out = torch.cat((out_word, ), -1)
+            out = torch.cat((out_word,out_bigram, out_trigram ), -1)
         out = out.mean(dim=1)
         #print(out.shape)
         out = self.dropout(out)

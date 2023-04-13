@@ -19,7 +19,7 @@ class Config(object):
         self.save_path = dataset + '/saved_dict/' + self.model_name + '.ckpt'        # 模型训练结果
         self.log_path = dataset + '/log/' + self.model_name
         self.embedding_pretrained = torch.tensor(
-            np.load(dataset + '/data/' + embedding)["embeddings"].astype('float32'))\
+            np.load(dataset + '/data/' + embedding)["embeddings"].astype('float32'))[:,:100]\
             if embedding != 'random' else None                                      # 预训练词向量
         self.embedding_pretrained_topics = torch.tensor(
             np.load(dataset + '/data/embedding_svd.zh.100.npz' )["embeddings"].astype('float32'))                              # 预训练词向量
