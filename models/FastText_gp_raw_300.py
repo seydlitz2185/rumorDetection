@@ -34,7 +34,7 @@ class Config(object):
         self.learning_rate = 1e-3                                       # 学习率
         self.embed = self.embedding_pretrained.size(1)\
             if self.embedding_pretrained is not None else 300           # 字向量维度
-        self.hidden_size = 256                                          # 隐藏层大小
+        self.hidden_size = (self.embed)*2                                        # 隐藏层大小
         self.n_gram_vocab = 150000                                      # ngram 词表大小
 
 
