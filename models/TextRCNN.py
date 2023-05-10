@@ -33,7 +33,7 @@ class Config(object):
         self.learning_rate = 1e-3                                       # 学习率
         self.embed = self.embedding_pretrained.size(1)\
             if self.embedding_pretrained is not None else 300           # 字向量维度, 若使用了预训练词向量，则维度统一
-        self.hidden_size = (self.embed*3)*2                                        # lstm隐藏层
+        self.hidden_size = 256                                          # lstm隐藏层
         self.num_layers = 1                                             # lstm层数
 
 
